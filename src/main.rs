@@ -1,8 +1,7 @@
-fn main() {
-    let mut seed: u32 = 0x0e0657c1; // The seed to be used to decode the message
-    let mut plain:[u8; 132] = [0; 132]; // array where decoded chars will be stored
-    let mut abc = [0x9fdd9158, 0x85715808, 0xac73323a, 0];  // to test decoding, a known array is given containing a,b,c
-    let mut coded = [           // The actual array to be decoded
+static mut seed: u32 = 0x0e0657c1; // The seed to be used to decode the message
+static mut plain:[u8; 132] = [0; 132]; // array where decoded chars will be stored
+static mut abc:[u32; 4] = [0x9fdd9158, 0x85715808, 0xac73323a, 0];  // to test decoding, a known array is given containing a,b,c
+static mut coded:[u32; 132] = [           // The actual array to be decoded
         0x015e7a47,
         0x2ef84ebb,
         0x177a8db4,
@@ -135,35 +134,40 @@ fn main() {
 	    0x09a1c6c8,
 	    0xc2e41061,
 	        0];
-            
-    decode(&mut coded, &mut plain, &mut seed);      // call decode with the coded array, the array in which to put the decoded characters and the starting seed
-    for x in plain.iter()
-    {
-        print!("{}", *x as char);
+
+fn main() {
+    unsafe {
+        decode(&mut coded, &mut plain);      // call decode with the coded array, the array in which to put the decoded characters and the starting seed
+        for x in plain.iter()
+        {
+            print!("{}", *x as char);
+        }
     }
 }
 // codgen will calculate a new seed based on the old seed and update seed and return the value to be used for decoding.
-fn codgen(seed: &mut u32) -> u32
+fn codgen() -> u32
 {
     let n: i32;
     let x: u32;
     let y: u32;
+    unsafe {
     n = seed.count_zeros() as i32;      // count zeros in seed
     x = seed.rotate_left(30);           // rotate left 30 bits   
-    y = (*seed as i32 >> 6) as u32;     // to get arithmetic shift, set seed as a i32 and then shift to right.
-    *seed = x ^ y ^ n as u32;           // set new seed as x xor y xor n
-    *seed ^ 0x464b713e                  // return new seed xor 0x464b713e
+    y = (seed as i32 >> 6) as u32;     // to get arithmetic shift, set seed as a i32 and then shift to right.
+    seed = x ^ y ^ n as u32;           // set new seed as x xor y xor n
+    seed ^ 0x464b713e                  // return new seed xor 0x464b713e
+    }
 }
 
 // decode goes through the word_arr and decoded the characters recursivly and inputs the decoded characters to the byte_arr
-fn decode(word_arr: &mut [u32], byte_arr: &mut [u8], seed: &mut u32) -> u32
+fn decode(word_arr: &mut [u32], byte_arr: &mut [u8]) -> u32
 {
     let m: u32;
     let mut r: u32 = 0;
     let x: u32;
     let y: u32;
 
-    x = !codgen(seed);      // one's compliment of codgen()
+    x = !codgen();      // one's compliment of codgen()
     if word_arr[0] == 0     // last row in word_arr is set to 0 as a breakpoint.
     {
         byte_arr[0] = 0;
@@ -174,10 +178,10 @@ fn decode(word_arr: &mut [u32], byte_arr: &mut [u8], seed: &mut u32) -> u32
         {
             if let Some((byte_arr_slize, rest_of_split_bytearr)) = byte_arr.split_first_mut() // takes the current byte_arr slize and splits it into two separate slizes
             {
-                y = decode(rest_of_split_wordarr, rest_of_split_bytearr, seed);     // recursivly calls decode with the next slize of the word_arr and byte_arr
+                y = decode(rest_of_split_wordarr, rest_of_split_bytearr);     // recursivly calls decode with the next slize of the word_arr and byte_arr
                 m = (x.wrapping_sub(y)).wrapping_sub(*word_arr_slize);              // (x-y)- the word_arr_slize
                 *byte_arr_slize = (m >> 13 & 0x7F) as u8;                           // set the byte_arr_slize to the bits at position 20-13 of m.
-                r = !codgen(seed) + 0x1;                                            // set r to two's compliment of codgen()
+                r = !codgen() + 0x1;                                            // set r to two's compliment of codgen()
                 r = (((x.wrapping_add(y)).wrapping_add(m)).wrapping_add(r)).wrapping_add(5)    // set r to x+y+m+r+5
             }
         }
