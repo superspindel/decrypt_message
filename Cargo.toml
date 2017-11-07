@@ -1,0 +1,6 @@
+[package]
+name = "decrypt_message"
+version = "0.1.0"
+authors = ["superspindel <viktor.fallman@hotmail.com>"]
+
+[dependencies]
