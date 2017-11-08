@@ -174,17 +174,11 @@ fn decode(word_arr: &mut [u32], byte_arr: &mut [u8]) -> u32
         r = x;
     }
     else {
-        if let Some((word_arr_slize, rest_of_split_wordarr)) = word_arr.split_first_mut() // takes the current word_arr slize and divides it into two separate slizes
-        {
-            if let Some((byte_arr_slize, rest_of_split_bytearr)) = byte_arr.split_first_mut() // takes the current byte_arr slize and splits it into two separate slizes
-            {
-                y = decode(rest_of_split_wordarr, rest_of_split_bytearr);     // recursivly calls decode with the next slize of the word_arr and byte_arr
-                m = (x.wrapping_sub(y)).wrapping_sub(*word_arr_slize);              // (x-y)- the word_arr_slize
-                *byte_arr_slize = (m >> 13 & 0x7F) as u8;                           // set the byte_arr_slize to the bits at position 20-13 of m.
-                r = !codgen() + 0x1;                                            // set r to two's compliment of codgen()
-                r = (((x.wrapping_add(y)).wrapping_add(m)).wrapping_add(r)).wrapping_add(5)    // set r to x+y+m+r+5
-            }
-        }
+        y = decode(&mut word_arr[1..], &mut byte_arr[1..]);
+        m = (x.wrapping_sub(y)).wrapping_sub(word_arr[0]);              // (x-y)- the word_arr_slize
+        byte_arr[0]= (m >> 13 & 0x7F) as u8;                           // set the byte_arr_slize to the bits at position 20-13 of m.
+        r = !codgen() + 0x1;                                            // set r to two's compliment of codgen()
+        r = (((x.wrapping_add(y)).wrapping_add(m)).wrapping_add(r)).wrapping_add(5);    // set r to x+y+m+r+5
     }
     r
 }
