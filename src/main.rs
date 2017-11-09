@@ -1,7 +1,7 @@
-static mut seed: u32 = 0x0e0657c1; // The seed to be used to decode the message
-static mut plain:[u8; 132] = [0; 132]; // array where decoded chars will be stored
-static mut abc:[u32; 4] = [0x9fdd9158, 0x85715808, 0xac73323a, 0];  // to test decoding, a known array is given containing a,b,c
-static mut coded:[u32; 132] = [           // The actual array to be decoded
+static mut SEED: u32 = 0x0e0657c1; // The seed to be used to decode the message
+static mut PLAIN:[u8; 132] = [0; 132]; // array where decoded chars will be stored
+static mut _ABC:[u32; 4] = [0x9fdd9158, 0x85715808, 0xac73323a, 0];  // to test decoding, a known array is given containing a,b,c
+static mut CODED:[u32; 132] = [           // The actual array to be decoded
         0x015e7a47,
         0x2ef84ebb,
         0x177a8db4,
@@ -137,8 +137,8 @@ static mut coded:[u32; 132] = [           // The actual array to be decoded
 
 fn main() {
     unsafe {
-        decode(&mut coded, &mut plain);      // call decode with the coded array, the array in which to put the decoded characters and the starting seed
-        for x in plain.iter()
+        decode(&mut CODED, &mut PLAIN);      // call decode with the coded array, the array in which to put the decoded characters and the starting seed
+        for x in PLAIN.iter()
         {
             print!("{}", *x as char);
         }
@@ -151,11 +151,11 @@ fn codgen() -> u32
     let x: u32;
     let y: u32;
     unsafe {
-    n = seed.count_zeros() as i32;      // count zeros in seed
-    x = seed.rotate_left(30);           // rotate left 30 bits   
-    y = (seed as i32 >> 6) as u32;     // to get arithmetic shift, set seed as a i32 and then shift to right.
-    seed = x ^ y ^ n as u32;           // set new seed as x xor y xor n
-    seed ^ 0x464b713e                  // return new seed xor 0x464b713e
+    n = SEED.count_zeros() as i32;      // count zeros in seed
+    x = SEED.rotate_left(30);           // rotate left 30 bits   
+    y = (SEED as i32 >> 6) as u32;     // to get arithmetic shift, set seed as a i32 and then shift to right.
+    SEED = x ^ y ^ n as u32;           // set new seed as x xor y xor n
+    SEED ^ 0x464b713e                  // return new seed xor 0x464b713e
     }
 }
 
@@ -163,7 +163,7 @@ fn codgen() -> u32
 fn decode(word_arr: &mut [u32], byte_arr: &mut [u8]) -> u32
 {
     let m: u32;
-    let mut r: u32 = 0;
+    let mut r: u32;
     let x: u32;
     let y: u32;
 
