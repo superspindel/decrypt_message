@@ -1,5 +1,7 @@
 # decrypt_message
 
+If null termination is removed, the program will panic at runtime since the recursive end point does not happen.
+
 ## To download
 
 1. `git clone https://github.com/superspindel/decrypt_message.git`
