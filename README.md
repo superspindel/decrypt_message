@@ -1,5 +1,7 @@
 # decrypt_message
 
+3c. If null termination is removed, the program will panic at runtime.
+
 ## To download
 
 1. `git clone https://github.com/superspindel/decrypt_message.git`
