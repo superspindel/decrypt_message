@@ -1,7 +1,7 @@
 fn main() {
     let mut seed: u32 = 0x0e0657c1; // The seed to be used to decode the message
     let mut plain:[u8; 132] = [0; 132]; // array where decoded chars will be stored
-    let mut abc = [0x9fdd9158, 0x85715808, 0xac73323a, 0];  // to test decoding, a known array is given containing a,b,c
+    let _abc:[u32; 4] = [0x9fdd9158, 0x85715808, 0xac73323a, 0];  // to test decoding, a known array is given containing a,b,c
     let mut coded = [           // The actual array to be decoded
         0x015e7a47,
         0x2ef84ebb,
